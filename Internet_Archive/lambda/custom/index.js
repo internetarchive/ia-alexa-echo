@@ -227,6 +227,10 @@ MyAudioPlayer.prototype.handle = function () {
       this.playSeventyEights(intent, 0);
 
     }
+    else if (intent.name === "AMAZON.HelpIntent") {	
+      console.log("HelpIntent");	
+      this.help();
+    }
     else if (intent.name === "OneGoSeventyEights") {
       console.log('OneGoSeventyEights');
       page = 0;
@@ -3316,3 +3320,34 @@ MyAudioPlayer.prototype.loadLastPlayed = function (userId) {
   }
   return lastPlayed;
 };
+MyAudioPlayer.prototype.help = function () {  
+  var cardTitle = 'Help is here';
+  var repromptText = "<speak>Waiting for your responce.<break time='.5s'/>You can again ask for help</speak>";
+  var cardOutput = " Try saying, Alexa,ask internet archive to play genre seventy eight , Where genre can Jazz, Dance,Instrumental etc, or Alexa, ask the internet archive to randomly play or search the Collection/Band Name Where Collection/Band Name can The Grateful Dead, The Ditty Bops, The Cowboy Junkies etc.";
+  
+  var speechOutput = "<speak> Try saying <break time='.5s'/> Alexa,ask internet archive to play <break time='.2s'/>genre <break time='.2s'/> seventy eight ,<break time='.2s'/> Where genre can Jazz <break time='.2s'/> or <break time='.2s'/> Dance <break time='.2s'/> or <break time='.2s'/>, Instrumental etc,<break time='.4s'/>or <break time='.4s'/> try saying <break time='.5s'/>Alexa, ask the internet archive to randomly play or <break time='.2s'/> search the Collection/Band Name <break time='.3s'/> Where Collection/Band Name can be <break time='.4s'/> The Grateful Dead <break time='.2s'/>or <break time='.2s'/> The Ditty Bops <break time='.2s'/> or <break time='.2s'/> The Cowboy Junkies etc </speak>";
+  //var speechOutput = "<speak>Welcome to the live music collection at the Internet Archive.<break time='.5s'/> What artist would you like to listen to? <break time='.5s'/>  For example, the ditty bops, the grateful dead, or the cowboy junkies. </speak>";
+  var response = {
+    version: '1.0',
+    response: {
+      outputSpeech: {
+        type: 'SSML',
+        ssml: speechOutput,
+      },
+      card: {
+        type: 'Simple',
+        title: cardTitle,
+        content: cardOutput,
+      },
+      reprompt: {
+        outputSpeech: {
+          type: 'SSML',
+          ssml: repromptText,
+        }
+      },
+      shouldEndSession: false,
+    }
+  };
+  this.context.succeed(response);
+};
+

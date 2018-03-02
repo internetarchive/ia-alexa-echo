@@ -28,7 +28,14 @@
           "name": "AMAZON.ScrollUpIntent"
         },
         {
-          "name": "AMAZON.CancelIntent"
+          "name": "AMAZON.CancelIntent",
+          "samples": [
+            "Help me to run internet archive skill",
+            "Help me internet archive",
+            "internet archive help me",
+            "how can i play music from internet archive in my alexa device",
+            "help"
+          ]
         },
         {
           "name": "AMAZON.HelpIntent"
