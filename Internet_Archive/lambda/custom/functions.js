@@ -21,7 +21,7 @@ var functions = function () {
                         if (intent.name === 'PlayAudioQuery') {
                             functions.userData[userId][deviceId].title = intent.slots.TITLE.value;
                         }
-                        functions.userData[userId][deviceId].APIURL = constants.podcastAPIURLNEW + functions.userData[userId][deviceId].title + '%20AND(mediatype:audio)+AND+format:(MP3)&fl[]=creator&fl[]=description&fl[]=downloads&fl[]=identifier&fl[]=mediatype&fl[]=subject&fl[]=title&sort[]=-downloads&rows=1&page=' + functions.userData[userId][deviceId].page + '&indent=yes&output=json';
+                        functions.userData[userId][deviceId].APIURL = constants.podcastAPIURLNEW + functions.userData[userId][deviceId].title + '+AND+format:(MP3)&fl[]=coverage&fl[]=creator&fl[]=description&fl[]=downloads&fl[]=identifier&fl[]=mediatype&fl[]=subject,year,location&fl[]=title&&sort[]=random&rows=1&page=' + functions.userData[userId][deviceId].page + '&indent=yes&output=json';
                     }
                     else if (functions.userData[userId][deviceId].PlayAudioByRandomYear || intent.name == 'PlayAudioByRandomYear') {
                         if (intent.name === 'PlayAudioByRandomYear') {
@@ -255,7 +255,6 @@ var functions = function () {
 
                                                                 }
                                                             }
-
                                                         } else {
                                                             let cardTitle = 'No Songs Found';
                                                             let repromptText = ' No songs found. Please Try again by saying. City and Year. or <break time=".1s"/> random.';
@@ -321,6 +320,7 @@ var functions = function () {
                                                     } else {
                                                         let resultIdentifier = JSON.parse(bodyIdentifier);
                                                         if (resultIdentifier != null && resultIdentifier['result'].length > 0) {
+                                                            functions.userData[userId][deviceId].MusicUrlList = [];
                                                             functions.userData[userId][deviceId].IdentifierSongsCountTotal = 0;
                                                             let lastsongsize = '';
                                                             for (let i = 0; i < resultIdentifier['result'].length; i++) {
@@ -385,28 +385,28 @@ var functions = function () {
                                                             }
                                                         }
                                                         else {
-                                                            //let cardTitle = 'No Songs Found';
-                                                            //let repromptText = 'No songs found. Please Try again by saying. City and Year. or <break time=".1s"/> random.';
-                                                            //let speechOutput = "Sorry , No songs found. Please Try again by saying. City and Year. or <break time='.1s'/> random.";
-                                                            //let cardOutput = "Sorry, No songs found. Please Try again by saying City and Year or Random.";
-                                                            //
-                                                            //tempObj.response.cardRenderer(cardTitle, cardOutput, null);
-                                                            //tempObj.response.speak(speechOutput).listen(repromptText);
-                                                            //tempObj.emit(':responseReady');
+                                                            let cardTitle = 'No Songs Found';
+                                                            let repromptText = 'Waiting for your response. Please Try again by saying. Search Artist Name.';
+                                                            let speechOutput = "Sorry , No songs found. Please Try again by saying., Search Artist Name.";
+                                                            let cardOutput = "Sorry, No songs found. Please Try again by saying Search Artist Name.";
+
+                                                            tempObj.response.cardRenderer(cardTitle, cardOutput, null);
+                                                            tempObj.response.speak(speechOutput).listen(repromptText);
+                                                            tempObj.emit(':responseReady');
 
                                                         }
                                                     }
 
                                                 });
                                             }).on('error', function (e) {
-                                                //let cardTitle = 'Unable to understand your request.';
-                                                //let repromptText = 'Waiting for your response. Please Try again by saying. City and Year. or <break time=".1s"/> random.';
-                                                //let speechOutput = "Sorry , Unable to understand your request. Please Try again by saying. City and Year. or <break time='.1s'/> random.";
-                                                //let cardOutput = "Sorry, Unable to understand your request. Please Try again by saying City and Year or Random.";
-                                                //
-                                                //tempObj.response.cardRenderer(cardTitle, cardOutput, null);
-                                                //tempObj.response.speak(speechOutput).listen(repromptText);
-                                                //tempObj.emit(':responseReady');
+                                                let cardTitle = 'Unable to understand your request.';
+                                                let repromptText = 'Waiting for your response. Please Try again by saying. Search Artist Name.';
+                                                let speechOutput = "Sorry , Unable to understand your request. Please Try again by saying. Search Artist Name.";
+                                                let cardOutput = "Sorry, Unable to understand your request. Please Try again by saying Search Artist Name.";
+
+                                                tempObj.response.cardRenderer(cardTitle, cardOutput, null);
+                                                tempObj.response.speak(speechOutput).listen(repromptText);
+                                                tempObj.emit(':responseReady');
 
                                             });
 

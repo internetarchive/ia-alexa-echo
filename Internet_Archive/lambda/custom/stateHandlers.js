@@ -3,6 +3,7 @@
 var Alexa = require('alexa-sdk');
 var functions = require('./functions');
 var constants = require('./constants');
+var version = require('./package.json').version;
 
 var stateHandlers = {
     startModeIntentHandlers: Alexa.CreateStateHandler(constants.states.START_MODE, {
@@ -11,6 +12,7 @@ var stateHandlers = {
          */
         'LaunchRequest': function () {
             // Initialize Attributes
+            console.log("Version is " + version);
             let userId = this.event.context ? this.event.context.System.user.userId : this.event.session.user.userId;
             let deviceId = this.event.context.System.device.deviceId;
             if (functions.userData[userId] == undefined) {
@@ -583,29 +585,39 @@ var stateHandlers = {
                 functions.userData[userId][deviceId].MusicUrlList = [];
             }
             // This will called while audio is playing and a user says "ask <invocation_name> for help"
-            if (functions.userData[userId][deviceId].MusicUrlList.length >= 1) {
+            if (functions.userData[userId][deviceId].MusicUrlList != undefined) {
+                if (functions.userData[userId][deviceId].MusicUrlList.length >= 1) {
+                    let cardTitle = 'Song Title.';
+                    let cardOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[counter]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    let speechOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    let repromptText = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    this.response.cardRenderer(cardTitle, cardOutput, null);
+                    this.response.speak(speechOutput).listen(repromptText);
+                    this.emit(':responseReady');
 
-                let cardTitle = 'Song Title.';
-                let cardOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[counter]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-                let speechOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-                let repromptText = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-
-                this.response.cardRenderer(cardTitle, cardOutput, null);
-                this.response.speak(speechOutput).listen(repromptText);
-                this.emit(':responseReady');
+                } else {
+                    let cardTitle = 'Happy to help';
+                    let cardOutput = "What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    let speechOutput = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    let repromptText = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    this.response.cardRenderer(cardTitle, cardOutput, null);
+                    this.response.speak(speechOutput).listen(repromptText);
+                    this.emit(':responseReady');
+                }
 
             } else {
 
-                let cardTitle = 'No song is Playing now.';
-                let cardOutput = "No song is Playing now. What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
-                let speechOutput = "No song is Playing now. What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
-                let repromptText = "No song is Playing now. What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                let cardTitle = 'Happy to help';
+                let cardOutput = "What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                let speechOutput = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                let repromptText = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
 
                 this.response.cardRenderer(cardTitle, cardOutput, null);
                 this.response.speak(speechOutput).listen(repromptText);
                 this.emit(':responseReady');
 
             }
+
         },
         'SessionEndedRequest': function () {
             this.context.succeed();
@@ -730,6 +742,15 @@ var stateHandlers = {
                 }
             }
         },
+        'GetVersion': function () {
+            let cardTitle = 'Skill Version';
+            let repromptText = "Version is " + version + ".<break time='.5s'/> What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            let cardOutput = "Version is " + version;
+            let speechOutput = "Version is " + version + ".<break time='.5s'/>  What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            this.response.cardRenderer(cardTitle, cardOutput, null);
+            this.response.speak(speechOutput).listen(repromptText);
+            this.emit(':responseReady');
+        },
         'Unhandled': function () {
             let cardTitle = 'Select artist';
             let repromptText = "Waiting for your response.<break time='.5s'/> What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
@@ -846,6 +867,9 @@ var stateHandlers = {
             controller.LiveConcerts.call(this);
         },
         'Discovery': function () {
+
+            let userId = this.event.context ? this.event.context.System.user.userId : this.event.session.user.userId;
+            let deviceId = this.event.context.System.device.deviceId;
             if (functions.userData[userId] == undefined) {
                 functions.userData[userId] = {};
                 functions.userData[userId][deviceId] = {};
@@ -1404,29 +1428,39 @@ var stateHandlers = {
                 functions.userData[userId][deviceId].MusicUrlList = [];
             }
             // This will called while audio is playing and a user says "ask <invocation_name> for help"
-            if (functions.userData[userId][deviceId].MusicUrlList.length >= 1) {
+            if (functions.userData[userId][deviceId].MusicUrlList != undefined) {
+                if (functions.userData[userId][deviceId].MusicUrlList.length >= 1) {
+                    let cardTitle = 'Song Title.';
+                    let cardOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[counter]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    let speechOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    let repromptText = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    this.response.cardRenderer(cardTitle, cardOutput, null);
+                    this.response.speak(speechOutput).listen(repromptText);
+                    this.emit(':responseReady');
 
-                let cardTitle = 'Song Title.';
-                let cardOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[counter]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-                let speechOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-                let repromptText = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-
-                this.response.cardRenderer(cardTitle, cardOutput, null);
-                this.response.speak(speechOutput).listen(repromptText);
-                this.emit(':responseReady');
+                } else {
+                    let cardTitle = 'Happy to help';
+                    let cardOutput = "What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    let speechOutput = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    let repromptText = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    this.response.cardRenderer(cardTitle, cardOutput, null);
+                    this.response.speak(speechOutput).listen(repromptText);
+                    this.emit(':responseReady');
+                }
 
             } else {
 
-                let cardTitle = 'Please select collection.';
-                let cardOutput = "What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends or The Disco Biscuits?";
-                let speechOutput = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends or The Disco Biscuits?";
-                let repromptText = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends or The Disco Biscuits?.";
+                let cardTitle = 'Happy to help';
+                let cardOutput = "What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                let speechOutput = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                let repromptText = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
 
                 this.response.cardRenderer(cardTitle, cardOutput, null);
                 this.response.speak(speechOutput).listen(repromptText);
                 this.emit(':responseReady');
 
             }
+
         },
         'SessionEndedRequest': function () {
             this.context.succeed();
@@ -1585,6 +1619,15 @@ var stateHandlers = {
                 }
             }
         },
+        'GetVersion': function () {
+            let cardTitle = 'Skill Version';
+            let repromptText = "Version is " + version + ".<break time='.5s'/>  What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            let cardOutput = "Version is " + version + ". What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            let speechOutput = "Version is " + version + ".<break time='.5s'/>  What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            this.response.cardRenderer(cardTitle, cardOutput, null);
+            this.response.speak(speechOutput).listen(repromptText);
+            this.emit(':responseReady');
+        },
         'Unhandled': function () {
 
             let userId = this.event.context ? this.event.context.System.user.userId : this.event.session.user.userId;
@@ -1681,6 +1724,8 @@ var stateHandlers = {
             controller.LiveConcerts.call(this);
         },
         'Discovery': function () {
+            let userId = this.event.context ? this.event.context.System.user.userId : this.event.session.user.userId;
+            let deviceId = this.event.context.System.device.deviceId;
             if (functions.userData[userId] == undefined) {
                 functions.userData[userId] = {};
                 functions.userData[userId][deviceId] = {};
@@ -2278,26 +2323,39 @@ var stateHandlers = {
                 functions.userData[userId][deviceId].MusicUrlList = [];
             }
             // This will called while audio is playing and a user says "ask <invocation_name> for help"
-            if (functions.userData[userId][deviceId].MusicUrlList.length >= 1) {
-                let cardTitle = 'Song Title.';
-                let cardOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[counter]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-                let speechOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
-                let repromptText = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+            if (functions.userData[userId][deviceId].MusicUrlList != undefined) {
+                if (functions.userData[userId][deviceId].MusicUrlList.length >= 1) {
+                    let cardTitle = 'Song Title.';
+                    let cardOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[counter]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    let speechOutput = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    let repromptText = "You are listening " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['title'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['coverage'] + ", " + functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount]['year'] + ".";
+                    this.response.cardRenderer(cardTitle, cardOutput, null);
+                    this.response.speak(speechOutput).listen(repromptText);
+                    this.emit(':responseReady');
 
-                this.response.cardRenderer(cardTitle, cardOutput, null);
-                this.response.speak(speechOutput).listen(repromptText);
-                this.emit(':responseReady');
+                } else {
+                    let cardTitle = 'Happy to help';
+                    let cardOutput = "What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    let speechOutput = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    let repromptText = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                    this.response.cardRenderer(cardTitle, cardOutput, null);
+                    this.response.speak(speechOutput).listen(repromptText);
+                    this.emit(':responseReady');
+                }
 
             } else {
-                let cardTitle = 'Select artist';
-                let repromptText = "Waiting for your response.<break time='.5s'/> What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+
+                let cardTitle = 'Happy to help';
                 let cardOutput = "What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
                 let speechOutput = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+                let repromptText = "What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+
                 this.response.cardRenderer(cardTitle, cardOutput, null);
                 this.response.speak(speechOutput).listen(repromptText);
                 this.emit(':responseReady');
 
             }
+
         },
         'AMAZON.StopIntent': function () {
 
@@ -2446,7 +2504,7 @@ var stateHandlers = {
 
                         if (functions.userData[userId][deviceId].MusicUrlList[functions.userData[userId][deviceId].IdentifierSongsCount] != undefined) {
                             this.handler.state = constants.states.RESUME_DECISION_MODE;
-                            let message = 'Title has been turned on. You were listening to ' + this.attributes[deviceId].audioURLTitle ;
+                            let message = 'Title has been turned on. You were listening to ' + this.attributes[deviceId].audioURLTitle;
                             this.response.speak(message);
                             this.emit(':responseReady');
                         } else {
@@ -2463,6 +2521,15 @@ var stateHandlers = {
                     }
                 }
             }
+        },
+        'GetVersion': function () {
+            let cardTitle = 'Skill Version';
+            let repromptText = "Version is " + version + ".<break time='.5s'/>  What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            let cardOutput = "Version is " + version + ". What artist would you like to listen to? For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            let speechOutput = "Version is " + version + ".<break time='.5s'/>  What artist would you like to listen to? <break time='.5s'/>  For example, The Grateful Dead, The Phil Lesh and Friends, The Disco Biscuits or 78s?";
+            this.response.cardRenderer(cardTitle, cardOutput, null);
+            this.response.speak(speechOutput).listen(repromptText);
+            this.emit(':responseReady');
         },
         'Unhandled': function () {
 

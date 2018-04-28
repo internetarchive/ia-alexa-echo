@@ -89,6 +89,16 @@
           ]
         },
         {
+          "name": "GetVersion",
+          "slots": [],
+          "samples": [
+            "What is the version of app",
+            "Version",
+            "Tell me the version of app",
+            "What version is this"
+          ]
+        },
+        {
           "name": "LiveConcerts",
           "slots": [],
           "samples": [

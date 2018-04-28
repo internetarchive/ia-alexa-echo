@@ -3,7 +3,7 @@ var Alexa = require('alexa-sdk');
 var constants = require('./constants');
 var stateHandlers = require('./stateHandlers');
 var audioEventHandlers = require('./audioEventHandlers');
-var functions = require('./functions');
+
 const dashbot = require('dashbot')(constants.DASHBOT_API_KEY).alexa;
 exports.handler = dashbot.handler( function (event, context, callback) {
 
